@@ -48,4 +48,4 @@ The following API endpoints are available:
 
 - Delete a graphic novel from the user's collection based on its id.
 
-Displayed in the render url: https://gloria-talavera-final-project-202307-bcn.onrender.com
+Displayed in the render url: https://inked-vsou.onrender.com
