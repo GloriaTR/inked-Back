@@ -4,6 +4,7 @@ import { type UserStructure } from "./types.js";
 const userSchema = new Schema<UserStructure>({
   name: {
     type: String,
+    default: "Anonymous User",
     required: true,
   },
   authId: {

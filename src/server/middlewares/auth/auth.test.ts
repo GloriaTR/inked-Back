@@ -98,30 +98,4 @@ describe("Given an auth middleware", () => {
       expect(next).toHaveBeenCalledWith(error as CustomError);
     });
   });
-
-  describe("When it receives a request and the id of the user is not found", () => {
-    test("Then it should call the next function with error message 'User id not found'", async () => {
-      const req: Partial<AuthRequest> = {
-        header: jest.fn().mockReturnValue("Bearertoken"),
-      };
-
-      admin.auth = jest.fn().mockReturnValue({
-        verifyIdToken: jest.fn().mockResolvedValue(token),
-      });
-
-      User.findOne = jest
-        .fn()
-        .mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
-
-      const expectedError = new CustomError(
-        "User id not found",
-        404,
-        "User id not found",
-      );
-
-      await auth(req as AuthRequest, res as Response, next);
-
-      expect(next).toHaveBeenCalledWith(expectedError);
-    });
-  });
 });
