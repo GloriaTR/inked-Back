@@ -98,4 +98,27 @@ describe("Given an auth middleware", () => {
       expect(next).toHaveBeenCalledWith(error as CustomError);
     });
   });
+
+  describe("When it receives a request and the id of a new user", () => {
+    test("Then it should create the new user in the database", async () => {
+      const req: Partial<AuthRequest> = {
+        header: jest.fn().mockReturnValue("Bearertoken"),
+      };
+
+      admin.auth = jest.fn().mockReturnValue({
+        verifyIdToken: jest.fn().mockResolvedValue(token),
+      });
+
+      User.findOne = jest
+        .fn()
+        .mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+
+      const saveUserMock = jest.fn().mockResolvedValue(user);
+      jest.spyOn(User.prototype, "save").mockImplementation(saveUserMock);
+
+      await auth(req as AuthRequest, res as Response, next);
+
+      expect(saveUserMock).toHaveBeenCalled();
+    });
+  });
 });
