@@ -29,6 +29,12 @@ describe("Given a getComics controller", () => {
       exec: jest.fn().mockResolvedValue(comicsMock),
     });
 
+    Comic.where = jest.fn().mockReturnValue({
+      countDocuments: jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(comicsMock.length),
+      }),
+    });
+
     test("Then it should call its method status with code 200", async () => {
       const expectedStatusCode = 200;
 
@@ -42,6 +48,7 @@ describe("Given a getComics controller", () => {
 
       expect(res.json).toHaveBeenCalledWith({
         comics: comicsMock,
+        totalComics: comicsMock.length,
       });
     });
   });
@@ -55,8 +62,8 @@ describe("Given a getComics controller", () => {
       );
 
       Comic.find = jest.fn().mockReturnValue({
-        limit: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
         exec: jest.fn().mockRejectedValue(expectedError),
       });
 

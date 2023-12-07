@@ -22,7 +22,9 @@ export const getComics = async (
       .limit(limitComics)
       .exec();
 
-    const totalComics = await Comic.countDocuments({ user: _id });
+    const totalComics = await Comic.where()
+      .countDocuments({ user: _id })
+      .exec();
 
     res.status(200).json({ comics, totalComics });
   } catch (error: unknown) {
