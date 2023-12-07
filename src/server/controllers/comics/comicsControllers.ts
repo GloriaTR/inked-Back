@@ -2,8 +2,8 @@ import { type NextFunction, type Response } from "express";
 import Comic from "../../../database/models/Comic.js";
 import CustomError from "../../../CustomError/CustomError.js";
 import {
-  type AuthRequestWithStringBody,
   type AuthRequest,
+  type AuthRequestWithStringBody,
 } from "../../middlewares/auth/types.js";
 
 export const getComics = async (
@@ -12,11 +12,21 @@ export const getComics = async (
   next: NextFunction,
 ) => {
   try {
+    const { limit } = req.query;
+    const limitComics = Number(limit);
+
     const _id = req.userId;
 
-    const comics = await Comic.find({ user: _id }).limit(10).exec();
+    const comics = await Comic.find({ user: _id })
+      .sort({ _id: -1 })
+      .limit(limitComics)
+      .exec();
 
-    res.status(200).json({ comics });
+    const totalComics = await Comic.where()
+      .countDocuments({ user: _id })
+      .exec();
+
+    res.status(200).json({ comics, totalComics });
   } catch (error: unknown) {
     const customError = new CustomError(
       (error as Error).message,
