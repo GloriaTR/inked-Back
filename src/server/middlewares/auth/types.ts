@@ -10,6 +10,19 @@ export interface AuthRequest
   userId?: string;
 }
 
+export interface CustomAuthRequest
+  extends Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    Partial<Omit<ComicStructure, "_id" | "user">>
+  > {
+  userId?: string;
+  query: {
+    limit?: string;
+    filter?: string;
+  };
+}
+
 export interface AuthRequestWithStringBody
   extends Request<Record<string, unknown>, Record<string, unknown>, string> {
   userId?: string;
