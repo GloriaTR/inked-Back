@@ -6,6 +6,8 @@ import {
   type AuthRequest,
   type AuthRequestWithStringBody,
 } from "../../middlewares/auth/types.js";
+import { type FilterQuery } from "mongoose";
+import { type ComicStructure } from "../../../database/models/types.js";
 
 export const getComics = async (
   req: CustomAuthRequest,
@@ -18,16 +20,20 @@ export const getComics = async (
 
     const _id = req.userId;
 
-    let comicsQuery = Comic.find({ user: _id }).sort({ _id: -1 });
+    const query: FilterQuery<ComicStructure> = { user: _id };
 
-    if (filter && (filter === "✔ Read" || filter === "Not Read")) {
-      const isRead = filter === "✔ Read";
-      comicsQuery = comicsQuery.where("isRead").equals(isRead);
+    if (filter === "Read") {
+      query.isRead = true;
+    } else if (filter === "NotRead") {
+      query.isRead = false;
     }
 
-    const comics = await comicsQuery.limit(limitComics).exec();
+    const comics = await Comic.find(query)
+      .sort({ _id: -1 })
+      .limit(limitComics)
+      .exec();
 
-    const totalComics = await Comic.where({ user: _id }).countDocuments();
+    const totalComics = await Comic.where(query).countDocuments();
 
     res.status(200).json({ comics, totalComics });
   } catch (error: unknown) {
