@@ -2,29 +2,38 @@ import { type NextFunction, type Response } from "express";
 import Comic from "../../../database/models/Comic.js";
 import CustomError from "../../../CustomError/CustomError.js";
 import {
+  type CustomAuthRequest,
   type AuthRequest,
   type AuthRequestWithStringBody,
 } from "../../middlewares/auth/types.js";
+import { type FilterQuery } from "mongoose";
+import { type ComicStructure } from "../../../database/models/types.js";
 
 export const getComics = async (
-  req: AuthRequest,
+  req: CustomAuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { limit } = req.query;
+    const { limit, filter } = req.query;
     const limitComics = Number(limit);
 
     const _id = req.userId;
 
-    const comics = await Comic.find({ user: _id })
+    const query: FilterQuery<ComicStructure> = { user: _id };
+
+    if (filter === "Read") {
+      query.isRead = true;
+    } else if (filter === "NotRead") {
+      query.isRead = false;
+    }
+
+    const comics = await Comic.find(query)
       .sort({ _id: -1 })
       .limit(limitComics)
       .exec();
 
-    const totalComics = await Comic.where()
-      .countDocuments({ user: _id })
-      .exec();
+    const totalComics = await Comic.where(query).countDocuments();
 
     res.status(200).json({ comics, totalComics });
   } catch (error: unknown) {
